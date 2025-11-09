@@ -1,0 +1,5 @@
+gcc-arm-none-eabi
+binutils-arm-none-eabi
+gdb-multiarch
+make
+cmake

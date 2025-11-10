@@ -1,0 +1,32 @@
+[FILEFORMAT]
+rev=1.6
+
+[CHIP]
+name=ATSAMD21E17DU
+endiansupport=le
+thumbsupport=true
+armsupport=false
+fpu=None
+SIMD=false
+JTAG=false
+RTCK=false
+CTJAG=false
+SWD=true
+SWO_TraceD0=false
+MtbRegBase=0x41006000
+MtbMinRamAddr=0x20000000
+MtbMaxRamAddr=0x20003fff
+//DeviceMacros=$TOOLKIT_DIR$/config/debugger/Microchip/Trace_SAMD21.dmac
+
+
+[CORE]
+name=Cortex-M0+
+
+[DDF FILE]
+name=$TOOLKIT_DIR$/config/debugger/Microchip/ATSAMD21E17DU.ddf
+
+[LINKER FILE]
+name=$TOOLKIT_DIR$/config/linker/Microchip/atsamd21e17du/flash.icf
+
+[FLASH LOADER]
+little=$TOOLKIT_DIR$/config/flashloader/Microchip/atsamd21e17du/atsamd21e17du-flash.board

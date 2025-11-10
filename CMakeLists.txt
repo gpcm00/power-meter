@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(SAMD21E17A C ASM)
+project(Power-Logger C ASM)
 
 # Toolchain settings
 set(CMAKE_SYSTEM_NAME Generic)
@@ -9,18 +9,21 @@ set(CMAKE_C_COMPILER arm-none-eabi-gcc)
 set(CMAKE_ASM_COMPILER arm-none-eabi-gcc)
 set(CMAKE_OBJCOPY arm-none-eabi-objcopy)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Compiler flags
 set(COMMON_FLAGS "-mcpu=cortex-m0plus -mthumb -mfloat-abi=soft -ffreestanding -fdata-sections -ffunction-sections")
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -O2 -Wall")
 set(CMAKE_EXE_LINKER_FLAGS "-T${CMAKE_SOURCE_DIR}/linker/samd21e17a_flash.ld -nostartfiles -Wl,--gc-sections")
 
 # Include directories
-include_directories(include)
+include_directories(include
+                    samd21a/include
+)
 
 # Source files
 set(SRC
     src/main.c
-    src/system_samd21.c
 )
 
 add_executable(${PROJECT_NAME}.elf ${SRC})

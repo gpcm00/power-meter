@@ -18,12 +18,15 @@ set(CMAKE_EXE_LINKER_FLAGS "-T${CMAKE_SOURCE_DIR}/linker/samd21e17a_flash.ld -no
 
 # Include directories
 include_directories(include
-                    samd21a/include
+                    samd21-core/samd21a/include
+                    arm-core/CMSIS/Core/Include
 )
 
 # Source files
 set(SRC
     src/main.c
+    src/startup_samd21e17a.c
+    src/system_samd21e17a.c
 )
 
 add_executable(${PROJECT_NAME}.elf ${SRC})

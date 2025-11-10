@@ -67,7 +67,7 @@ CTestTestfile.cmake
 _deps
 CMakeUserPresets.json
 
-build/*
+build/
 
 Microchip.SAMD21_DFP.3.7.262.atpack
 ARM.CMSIS.6.2.0.pack
@@ -483,11 +483,6 @@ FodyWeavers.xsd
 # VS Code files for those working on multiple tools
 
 .vscode/
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/*.code-snippets
 
 # Local History for Visual Studio Code
 .history/

@@ -1,7 +1,7 @@
 /******************************************************************************
- * @file     startup_<Device>.c
+ * @file     startup_samd21e17a.c
  * @brief    CMSIS-Core(M) Device Startup File for
- *           Device <Device>
+ *           Device SAMD21E17A
  * @version  V1.0.0
  * @date     20. January 2021
  ******************************************************************************/
@@ -28,28 +28,24 @@
  *  - 2025-11-09: Added SAMD21 startup sequence support and refactored vector table (Gian Moreira)
  */
 
-#include "samd21e17a.h"
+#include "startup_samd21e17a.h"
 
 /*---------------------------------------------------------------------------
   External References
  *---------------------------------------------------------------------------*/
 extern uint32_t __INITIAL_SP;
-extern uint32_t __STACK_LIMIT;
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 extern uint32_t __STACK_SEAL;
 #endif
-
-extern __NO_RETURN void __PROGRAM_START(void);
 
 /*---------------------------------------------------------------------------
   Internal References
  *---------------------------------------------------------------------------*/
 __NO_RETURN void Reset_Handler  (void);
-__NO_RETURN void Default_Handler(void);
+void Default_Handler(void);
 
-/* ToDo: Add Cortex exception handler according the used Cortex-Core */
 /*---------------------------------------------------------------------------
-  Exception / Interrupt Handler
+  Exception / Peripherals Handler
  *---------------------------------------------------------------------------*/
 /* Exceptions */
 void NMI_Handler            (void) __attribute__ ((weak, alias("Default_Handler")));
@@ -166,7 +162,7 @@ __NO_RETURN void Reset_Handler(void)
   __set_PSP((uint32_t)(&__INITIAL_SP));
 
   SystemInit();                     /* CMSIS System Initialization */
-  main();                           /* Enter PreMain (C library entry point) */
+  main();                           /* Enter main */
 }
 
 

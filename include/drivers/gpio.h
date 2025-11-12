@@ -15,7 +15,7 @@ typedef port_group_registers_t gpio;
 #error "Unknown architecture"
 #endif
 
-extern gpio* const porta;
-extern gpio* const portb; 
+extern volatile gpio* const porta;
+extern volatile gpio* const portb; 
 
 #endif

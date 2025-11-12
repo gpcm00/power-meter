@@ -3,7 +3,7 @@
 
 #define LED_R               BIT(27)
 #define LED_O               BIT(23)
-#define LED_Y               BIT(21)
+#define LED_Y               BIT(22)
 #define LED_G               BIT(15)
 
 #define TST_BLINKER_BIT     (LED_R|LED_O|LED_Y|LED_G)

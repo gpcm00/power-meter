@@ -1,9 +1,11 @@
+/******************************************************************************
+ * @file     gpio.h
+ * @brief    Header file for the GPIO ports
+ * @version  V1.0.0
+ * @date     20. January 2021
+ ******************************************************************************/
 #ifndef DRIVER_GPIO_H
 #define DRIVER_GPIO_H
-
-/*  Section 23
- *  https://onlinedocs.microchip.com/oxy/GUID-22527069-B4D6-49B9-BACC-3AF1C52EB48C-en-US-20/index.html  
- *******************************************************************************************************/
 
 #include <common.h>
 

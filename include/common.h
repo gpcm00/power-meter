@@ -5,4 +5,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define BIT(n)      (1<<(n))
+
 #endif

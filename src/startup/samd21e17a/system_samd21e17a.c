@@ -19,7 +19,12 @@
  *
  */
 
-#include "samd21e17a.h"
+ /*
+  * Modifications:
+  *  - 2025-11-12: Changed header file (Gian Moreira)
+  */
+
+#include <startup/startup_samd21e17a.h>
 
 /** \cond 0 */
 /* *INDENT-OFF* */

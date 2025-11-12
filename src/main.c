@@ -1,4 +1,7 @@
+#ifndef USING_SAMD21E17A_MCU
 #define USING_SAMD21E17A_MCU
+#endif
+
 #include <power_logger.h>
 
 #define LED_R               BIT(27)

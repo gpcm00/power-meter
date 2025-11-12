@@ -28,7 +28,7 @@
  *  - 2025-11-09: Added SAMD21 startup sequence support and refactored vector table (Gian Moreira)
  */
 
-#include "startup_samd21e17a.h"
+#include <startup/startup_samd21e17a.h>
 
 /*---------------------------------------------------------------------------
   External References
@@ -120,34 +120,34 @@ const VECTOR_TABLE_Type __VECTOR_TABLE[] __VECTOR_TABLE_ATTRIBUTE = {
   SysTick_Handler,                     /*  -1 SysTick Handler */
 
   /* Interrupts */
-  PM_Handler, 
-  SYSCTRL_Handler, 
-  WDT_Handler, 
-  RTC_Handler, 
-  EIC_Handler, 
-  NVMCTRL_Handler, 
-  DMAC_Handler, 
-  USB_Handler, 
-  EVSYS_Handler, 
-  SERCOM0_Handler, 
-  SERCOM1_Handler, 
-  SERCOM2_Handler, 
-  SERCOM3_Handler, 
+  PM_Handler,
+  SYSCTRL_Handler,
+  WDT_Handler,
+  RTC_Handler,
+  EIC_Handler,
+  NVMCTRL_Handler,
+  DMAC_Handler,
+  USB_Handler,
+  EVSYS_Handler,
+  SERCOM0_Handler,
+  SERCOM1_Handler,
+  SERCOM2_Handler,
+  SERCOM3_Handler,
   0,                                /*     Reserved */
   0,                                /*     Reserved */
-  TCC0_Handler, 
-  TCC1_Handler, 
-  TCC2_Handler, 
-  TC3_Handler, 
-  TC4_Handler, 
-  TC5_Handler, 
+  TCC0_Handler,
+  TCC1_Handler,
+  TCC2_Handler,
+  TC3_Handler,
+  TC4_Handler,
+  TC5_Handler,
   0,                                /*     Reserved */
   0,                                /*     Reserved */
-  ADC_Handler, 
-  AC_Handler, 
-  DAC_Handler, 
-  PTC_Handler, 
-  I2S_Handler  
+  ADC_Handler,
+  AC_Handler,
+  DAC_Handler,
+  PTC_Handler,
+  I2S_Handler
 };
 
 #if defined ( __GNUC__ )

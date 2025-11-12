@@ -4,6 +4,4 @@
 #include <common.h>
 #include <drivers/gpio.h>
 
-#define BIT(n)      (1<<(n))
-
 #endif

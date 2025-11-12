@@ -5,15 +5,15 @@
  * @date     10 November 2025
  *****************************************************************************/
 
-#ifndef STARTUP_SAMD21E17A_H   /* ToDo: replace '<Device>' with your device name */
+#ifndef STARTUP_SAMD21E17A_H
 #define STARTUP_SAMD21E17A_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "samd21e17a.h"
-#include "system_samd21e17a.h"
+#include <samd21e17a.h>
+#include <system_samd21e17a.h>
 
 typedef void(*VECTOR_TABLE_Type)(void);
 __NO_RETURN void main (void);
@@ -22,4 +22,4 @@ __NO_RETURN void main (void);
 }
 #endif
 
-#endif /* SYSTEM_<Device>_H */
+#endif

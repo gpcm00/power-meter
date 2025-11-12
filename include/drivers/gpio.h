@@ -11,11 +11,12 @@
 
 #ifdef USING_SAMD21E17A_MCU
 typedef port_group_registers_t gpio;
+
+extern volatile gpio* const porta;
+extern volatile gpio* const portb;
+
 #else
 #error "Unknown architecture"
 #endif
-
-extern volatile gpio* const porta;
-extern volatile gpio* const portb; 
 
 #endif

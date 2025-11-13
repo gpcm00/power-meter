@@ -12,4 +12,4 @@ General header files and start-up files. The header files for this project are l
 
 We are mainly using **samd21e17a.h**, which includes all the files in the **component/** and **instance/** folders, as well as **pio/samd21e17a.h**
 
-Since I had to modify the linker and the system code, I copied them to the linker/ and src/ folder, and kept the original version unmodified here.
+Since I had to modify the linker and the system code, I copied them to the linker/ and to the src/ folders, and kept the original version unmodified here.

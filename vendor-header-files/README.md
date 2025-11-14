@@ -8,8 +8,8 @@ Any template file used from this folder is saved in either src/ or include/ fold
 
 # samd21-core
 
-General header files and start-up files. The header files for this project are located at samd21a/include.
+General header files and start-up files. The header files for this project are located at **samd21a/include**.
 
 We are mainly using **samd21e17a.h**, which includes all the files in the **component/** and **instance/** folders, as well as **pio/samd21e17a.h**
 
-Since I had to modify the linker and the system code, I copied them to the linker/ and src/ folder, and kept the original version unmodified here.
+Since I had to modify the linker and the system code, I copied them to the **linker/** and to the **src/** folders, and kept the original version unmodified here.

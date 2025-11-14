@@ -2,6 +2,8 @@
 .zed/
 build/
 
+*.ignore
+
 Microchip.SAMD21_DFP.3.7.262.atpack
 ARM.CMSIS.6.2.0.pack
 

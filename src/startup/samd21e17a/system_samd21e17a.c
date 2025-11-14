@@ -21,7 +21,8 @@
 
  /*
   * Modifications:
-  *  - 2025-11-12: Changed header file (Gian Moreira)
+  *  - 2025-11-12: Changed header file (gpcm00)
+  *  - 2025-11-13: Implemented SystemCoreClockUpdate (gpcm00)
   */
 
 #include <startup/startup_samd21e17a.h>
@@ -52,6 +53,7 @@ void SystemInit(void)
 {
     // Keep the default device state after reset
     SystemCoreClock = __SYSTEM_CLOCK;
+    SystemCoreClockUpdate();
     return;
 }
 
@@ -65,6 +67,21 @@ void SystemCoreClockUpdate(void)
 {
     // Not implemented
     SystemCoreClock = __SYSTEM_CLOCK;
+
+    /* Initialize XOSC32K */
+    SYSCTRL_REGS->SYSCTRL_XOSC32K  = SYSCTRL_XOSC32K_XTALEN(1) |
+                                     SYSCTRL_XOSC32K_XTALEN(1);
+    SYSCTRL_REGS->SYSCTRL_XOSC32K |= SYSCTRL_XOSC32K_ENABLE(1);
+    while(!(SYSCTRL_REGS->SYSCTRL_XOSC32K & SYSCTRL_PCLKSR_XOSC32KRDY_Msk));
+
+    /* Setup GCLK_GEN1 to output XOSC32K */
+    GCLK_REGS->GCLK_GENDIV = GCLK_GENDIV_ID(0x1) |
+                             GCLK_GENDIV_DIV(0);     // no prescalar
+    // GCLK_REGS->
+
+    /* Setup DFLL48M with XOSC32K */
+
+
     return;
 }
 

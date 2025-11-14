@@ -25,7 +25,8 @@
 
 /*
  * Modifications:
- *  - 2025-11-09: Added SAMD21 startup sequence support and refactored vector table (Gian Moreira)
+ *  - 2025-11-09: Added SAMD21 startup sequence support and refactored
+ *                vector table (gpcm00)
  */
 
 #include <startup/startup_samd21e17a.h>
@@ -163,6 +164,7 @@ __NO_RETURN void Reset_Handler(void)
 
   SystemInit();                     /* CMSIS System Initialization */
   main();                           /* Enter main */
+  while(1);
 }
 
 

@@ -2,11 +2,11 @@
  * @file     gpio.c
  * @brief    Driver for the GPIO ports for the SAMD21E17
  * @version  V1.0.0
- * @date     20. January 2021
+ * @date     11 November 2025
  ******************************************************************************/
-/*  Section 23
- *  https://onlinedocs.microchip.com/oxy/GUID-22527069-B4D6-49B9-BACC-3AF1C52EB48C-en-US-20/index.html  
- *******************************************************************************************************/
+
+ /*  Section 23 on the datasheet
+ ******************************************************************************/
 #include <drivers/gpio.h>
 
 

@@ -25,9 +25,6 @@
   *  - 2025-11-13: Implemented SystemInit (gpcm00)
   */
 
-#include "component/gclk.h"
-#include "component/sysctrl.h"
-#include "samd21e17a.h"
 #include <startup/startup_samd21e17a.h>
 #include <stdint.h>
 

@@ -30,6 +30,7 @@
  */
 
 #include <startup/startup_samd21e17a.h>
+#include <stdint.h>
 
 /*---------------------------------------------------------------------------
   External References
@@ -156,15 +157,34 @@ const VECTOR_TABLE_Type __VECTOR_TABLE[] __VECTOR_TABLE_ATTRIBUTE = {
 #endif
 
 /*---------------------------------------------------------------------------
+  Linker defined system variables
+ *---------------------------------------------------------------------------*/
+extern uint32_t _estack;
+extern uint32_t _sbss;
+extern uint32_t _ebss;
+extern uint32_t _etext;
+extern uint32_t _srelocate;
+extern uint32_t _erelocate;
+
+/*---------------------------------------------------------------------------
   Reset Handler called on controller reset
  *---------------------------------------------------------------------------*/
 __NO_RETURN void Reset_Handler(void)
 {
-  __set_PSP((uint32_t)(&__INITIAL_SP));
+    __set_PSP((uint32_t)(&_estack));
 
-  SystemInit();                     /* CMSIS System Initialization */
-  main();                           /* Enter main */
-  while(1);
+    // zero bss
+    for (uint32_t* zero = &_sbss; zero < &_ebss; zero++)
+        *zero = 0;
+
+    // copy data to ram
+    uint32_t* src = &_etext;
+    for (uint32_t* data = &_srelocate; data < &_erelocate; data++)
+        *data = *(src++);
+
+    SystemInit();                     /* CMSIS System Initialization */
+    main();                           /* Enter main */
+    while(1);
 }
 
 

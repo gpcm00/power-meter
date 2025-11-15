@@ -22,73 +22,99 @@
  /*
   * Modifications:
   *  - 2025-11-12: Changed header file (gpcm00)
-  *  - 2025-11-13: Implemented SystemCoreClockUpdate (gpcm00)
+  *  - 2025-11-13: Implemented SystemInit (gpcm00)
   */
 
+#include "component/gclk.h"
+#include "component/sysctrl.h"
+#include "samd21e17a.h"
 #include <startup/startup_samd21e17a.h>
-
-/** \cond 0 */
-/* *INDENT-OFF* */
-#ifdef __cplusplus
-extern "C" {
-#endif
-/* *INDENT-ON* */
-/** \endcond */
+#include <stdint.h>
 
 /**
  * Initial system clock frequency. The System RC Oscillator (RCSYS) provides
  *  the source for the main clock at chip startup.
  */
-#define __SYSTEM_CLOCK    (1000000)
+#define __SYSTEM_CLOCK    (1000000)     // default value at startup
 
-uint32_t SystemCoreClock = __SYSTEM_CLOCK;  /*!< System Clock Frequency (Core Clock)*/
+uint32_t SystemCoreClock = __SYSTEM_CLOCK;
 
-/**
- * Initialize the system
- *
- * \brief  Setup the microcontroller system.
- *         Initialize the System and update the SystemCoreClock variable.
- */
+enum LOGIC_LEVEL {
+    LOW = 0, HIGH,
+};
+
+// Initialize XOSC32K --------------------------------------------------------------
+__STATIC_INLINE void SetupSysctrlXOSC32K()
+{
+    // setup n cycles to stabilize and enable xosc32k as external crystal osc mode
+    SYSCTRL_REGS->SYSCTRL_XOSC32K = SYSCTRL_XOSC32K_STARTUP_CYCLE4096 |
+                                    SYSCTRL_XOSC32K_XTALEN(HIGH);
+
+    // enable clk module once register is setup
+    SYSCTRL_REGS->SYSCTRL_XOSC32K |= SYSCTRL_XOSC32K_ENABLE(HIGH);
+
+    while(!(SYSCTRL_REGS->SYSCTRL_XOSC32K & SYSCTRL_PCLKSR_XOSC32KRDY_Msk));
+}
+
+// Setup GCLK_GEN1 to output XOSC32K -----------------------------------------------
+__STATIC_INLINE void SetupGCLKGEN1()
+{
+    // set no prescaler value on clk gen 1
+    GCLK_REGS->GCLK_GENDIV = GCLK_GENDIV_ID(0x1) |
+                             GCLK_GENDIV_DIV(0);
+
+    // enable GCLK_GEN1 with XOSC32K as source and no divider
+    GCLK_REGS->GCLK_GENCTRL = GCLK_GENCTRL_ID(0x1) |
+                              GCLK_GENCTRL_SRC_XOSC32K |
+                              GCLK_GENCTRL_GENEN(HIGH) |
+                              GCLK_GENCTRL_DIVSEL(LOW);
+
+    while (GCLK_REGS->GCLK_STATUS & GCLK_STATUS_SYNCBUSY(HIGH));
+
+    // route XOSC32K to DFLL48 module
+    GCLK_REGS->GCLK_CLKCTRL = GCLK_CLKCTRL_ID_DFLL48 |
+                              GCLK_CLKCTRL_GEN(0x1) |
+                              GCLK_CLKCTRL_CLKEN(HIGH);
+
+    while (GCLK_REGS->GCLK_STATUS & GCLK_STATUS_SYNCBUSY_Msk);
+}
+
+// Setup DFLL48M with XOSC32K --------------------------------------------------
+__STATIC_INLINE void SetupDFLL()
+{
+    // TODO: add coarse and fine callibration from NVM
+
+    // conforming with the device's errata page 9 (1.2.1)
+    SYSCTRL_REGS->SYSCTRL_DFLLCTRL &= ~SYSCTRL_DFLLCTRL_ONDEMAND_Msk;
+    while (!(SYSCTRL_REGS->SYSCTRL_PCLKSR & SYSCTRL_PCLKSR_DFLLRDY_Msk));
+
+    SYSCTRL_REGS->SYSCTRL_DFLLCTRL = 0;
+
+    // start dll with maximum coarse and fine values
+    SYSCTRL_REGS->SYSCTRL_DFLLMUL = SYSCTRL_DFLLMUL_CSTEP(31) |
+                                    SYSCTRL_DFLLMUL_FSTEP(511) |
+                                    SYSCTRL_DFLLMUL_MUL(1495);
+
+    SYSCTRL_REGS->SYSCTRL_DFLLCTRL = SYSCTRL_DFLLCTRL_MODE(HIGH) |
+                                     SYSCTRL_DFLLCTRL_WAITLOCK(HIGH);
+
+    SYSCTRL_REGS->SYSCTRL_DFLLCTRL |= SYSCTRL_DFLLCTRL_ENABLE_Msk;
+    while (!(SYSCTRL_REGS->SYSCTRL_PCLKSR & SYSCTRL_PCLKSR_DFLLRDY_Msk));
+}
+
+
 void SystemInit(void)
 {
-    // Keep the default device state after reset
-    SystemCoreClock = __SYSTEM_CLOCK;
+    SetupSysctrlXOSC32K();     // enable XOSC32 as crystal oscillator
+    SetupGCLKGEN1();           // routes XOSC32 to DFLL48
+    SetupDFLL();
+
     SystemCoreClockUpdate();
     return;
 }
 
-/**
- * Update SystemCoreClock variable
- *
- * \brief  Updates the SystemCoreClock with current core Clock
- *         retrieved from cpu registers.
- */
 void SystemCoreClockUpdate(void)
 {
-    // Not implemented
     SystemCoreClock = __SYSTEM_CLOCK;
-
-    /* Initialize XOSC32K */
-    SYSCTRL_REGS->SYSCTRL_XOSC32K  = SYSCTRL_XOSC32K_XTALEN(1) |
-                                     SYSCTRL_XOSC32K_XTALEN(1);
-    SYSCTRL_REGS->SYSCTRL_XOSC32K |= SYSCTRL_XOSC32K_ENABLE(1);
-    while(!(SYSCTRL_REGS->SYSCTRL_XOSC32K & SYSCTRL_PCLKSR_XOSC32KRDY_Msk));
-
-    /* Setup GCLK_GEN1 to output XOSC32K */
-    GCLK_REGS->GCLK_GENDIV = GCLK_GENDIV_ID(0x1) |
-                             GCLK_GENDIV_DIV(0);     // no prescalar
-    // GCLK_REGS->
-
-    /* Setup DFLL48M with XOSC32K */
-
-
     return;
 }
-
-/** \cond 0 */
-/* *INDENT-OFF* */
-#ifdef __cplusplus
-}
-#endif
-/* *INDENT-ON* */
-/** \endcond */

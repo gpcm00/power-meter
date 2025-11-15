@@ -32,14 +32,6 @@ OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 SEARCH_DIR(.)
 
-/*************************************************************************
- * Memory-Region Definitions
- * You may define these as options to the linker when calling 
- * the linker via the arm-gcc shell.
- * ie. '-Wl,--defsym=<memory_type>_ORIGIN=<address>'
- * and/or '-Wl,--defsym=<memory_type>_LENGTH=<size>'
- *************************************************************************/
-
 ROM_ORIGIN = DEFINED(ROM_ORIGIN) ? ROM_ORIGIN : 0x00000000;
 ROM_LENGTH = DEFINED(ROM_LENGTH) ? ROM_LENGTH : 0x20000; /* rom, 131072K */
 RAM_ORIGIN = DEFINED(RAM_ORIGIN) ? RAM_ORIGIN : 0x20000000;
@@ -177,10 +169,6 @@ SECTIONS
 /* Provide aliases used by startup code */
 PROVIDE(__StackTop = _estack);
 PROVIDE(__StackLimit = ORIGIN(ram));
-PROVIDE(__data_start__ = __data_start__);
-PROVIDE(__data_end__   = __data_end__);
-PROVIDE(__bss_start__  = __bss_start__);
-PROVIDE(__bss_end__    = __bss_end__);
 PROVIDE(__zero_table_start__ = _sbss);
 PROVIDE(__zero_table_end__   = _ebss);
 PROVIDE(__copy_table_start__ = _srelocate);

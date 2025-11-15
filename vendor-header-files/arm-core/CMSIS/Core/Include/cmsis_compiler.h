@@ -38,18 +38,18 @@
   #include "cmsis_tiarmclang.h"
 
 
+
+  /*
+   * GNU Compiler
+   */
+#elif defined ( __GNUC__ )
+  #include "cmsis_gcc.h"
+
 /*
  * LLVM/Clang Compiler
  */
 #elif defined ( __clang__ )
   #include "cmsis_clang.h"
-
-
-/*
- * GNU Compiler
- */
-#elif defined ( __GNUC__ )
-#include "cmsis_gcc.h"
 
 
 /*
@@ -281,4 +281,3 @@
 
 
 #endif /* __CMSIS_COMPILER_H */
-

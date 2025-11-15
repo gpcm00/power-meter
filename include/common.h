@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define BIT(n)      (1<<(n))
+#define BIT(n)          (1<<(n))
+#define N_BIT_MASK(n)   (BIT(n)-1)
 
 #endif

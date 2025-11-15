@@ -206,7 +206,7 @@
 
 #define FUSES_USER_WORD_0_WDT_WINDOW__Pos     _UINT32_(31)                                         /* (FUSES_USER_WORD_0 Position) WDT Window bit x */
 #define FUSES_USER_WORD_0_WDT_WINDOW__Msk     (_UINT32_(0x1) << FUSES_USER_WORD_0_WDT_WINDOW__Pos) /* (FUSES_USER_WORD_0 Mask) WDT_WINDOW_ */
-#define FUSES_USER_WORD_0_WDT_WINDOW_(value)  (FUSES_USER_WORD_0_WDT_WINDOW__Msk & (_UINT32_(value) << FUSES_USER_WORD_0_WDT_WINDOW__Pos)) 
+#define FUSES_USER_WORD_0_WDT_WINDOW_(value)  (FUSES_USER_WORD_0_WDT_WINDOW__Msk & (_UINT32_(value) << FUSES_USER_WORD_0_WDT_WINDOW__Pos))
 
 /* -------- FUSES_USER_WORD_1 : (FUSES Offset: 0x04) (R/W 32) USER Page Word 1 -------- */
 #define FUSES_USER_WORD_1_WDT_WINDOW_1_Pos    _UINT32_(0)                                          /* (FUSES_USER_WORD_1) WDT Window bits 3:1 Position */

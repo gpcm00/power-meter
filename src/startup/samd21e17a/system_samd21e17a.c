@@ -36,6 +36,7 @@
  *  the source for the main clock at chip startup.
  */
 #define __SYSTEM_CLOCK    (1000000)     // default value at startup
+#define GCLK_DEBUG        1             // 1 for debugging
 
 uint32_t SystemCoreClock = __SYSTEM_CLOCK;
 
@@ -47,7 +48,8 @@ enum LOGIC_LEVEL {
 __STATIC_INLINE void SetupSysctrlXOSC32K()
 {
     // setup n cycles to stabilize and enable xosc32k as external crystal osc mode
-    SYSCTRL_REGS->SYSCTRL_XOSC32K = SYSCTRL_XOSC32K_STARTUP_CYCLE4096 |
+    SYSCTRL_REGS->SYSCTRL_XOSC32K = SYSCTRL_XOSC32K_STARTUP_CYCLE32768 |
+                                    SYSCTRL_XOSC32K_EN32K(HIGH) |
                                     SYSCTRL_XOSC32K_XTALEN(HIGH);
 
     // enable clk module once register is setup
@@ -59,12 +61,15 @@ __STATIC_INLINE void SetupSysctrlXOSC32K()
 // Setup GCLK_GEN1 to output XOSC32K ----------------------------------------------------
 __STATIC_INLINE void SetupGCLKGEN1()
 {
+    GCLK_REGS->GCLK_CTRL |= GCLK_CTRL_SWRST(HIGH);
+
     // set no prescaler value on clk gen 1
     GCLK_REGS->GCLK_GENDIV = GCLK_GENDIV_ID(0x1) |
                              GCLK_GENDIV_DIV(0);
 
     // enable GCLK_GEN1 with XOSC32K as source and no divider
     GCLK_REGS->GCLK_GENCTRL = GCLK_GENCTRL_ID(0x1) |
+                              GCLK_GENCTRL_OE(GCLK_DEBUG) |
                               GCLK_GENCTRL_SRC_XOSC32K |
                               GCLK_GENCTRL_GENEN(HIGH) |
                               GCLK_GENCTRL_DIVSEL(LOW);
@@ -104,13 +109,20 @@ __STATIC_INLINE void SetupDFLL()
     SYSCTRL_REGS->SYSCTRL_DFLLMUL = SYSCTRL_DFLLMUL_CSTEP(31) |
                                     SYSCTRL_DFLLMUL_FSTEP(511) |
                                     SYSCTRL_DFLLMUL_MUL(1495);
+    while (!(SYSCTRL_REGS->SYSCTRL_PCLKSR & SYSCTRL_PCLKSR_DFLLRDY_Msk));
 
     // start DFLL in close-loop, no quick lock and wait for lock
-    SYSCTRL_REGS->SYSCTRL_DFLLCTRL  = SYSCTRL_DFLLCTRL_ENABLE(HIGH) |
-                                      SYSCTRL_DFLLCTRL_MODE(HIGH) |
-                                      SYSCTRL_DFLLCTRL_QLDIS(HIGH) |
-                                      SYSCTRL_DFLLCTRL_WAITLOCK(HIGH);
+    SYSCTRL_REGS->SYSCTRL_DFLLCTRL = SYSCTRL_DFLLCTRL_MODE(HIGH) |
+                                     SYSCTRL_DFLLCTRL_QLDIS(HIGH) |
+                                     SYSCTRL_DFLLCTRL_WAITLOCK(HIGH);
     while (!(SYSCTRL_REGS->SYSCTRL_PCLKSR & SYSCTRL_PCLKSR_DFLLRDY_Msk));
+
+    SYSCTRL_REGS->SYSCTRL_DFLLCTRL |= SYSCTRL_DFLLCTRL_ENABLE(HIGH);
+    while (!(SYSCTRL_REGS->SYSCTRL_PCLKSR & SYSCTRL_PCLKSR_DFLLLCKC_Msk)
+        || !(SYSCTRL_REGS->SYSCTRL_PCLKSR & SYSCTRL_PCLKSR_DFLLLCKF_Msk));
+
+    while (!(SYSCTRL_REGS->SYSCTRL_PCLKSR & SYSCTRL_PCLKSR_DFLLRDY_Msk));
+
 }
 
 // Setup GCLK_GEN0 with DFLL48M ---------------------------------------------------------
@@ -121,23 +133,34 @@ __STATIC_INLINE void SetupGCLKGEN0()
     // according to NVM characteristics in datasheet, wait one cycle
     NVMCTRL_REGS->NVMCTRL_CTRLB |= NVMCTRL_CTRLB_RWS(1);
 
+    GCLK_REGS->GCLK_CTRL |= GCLK_CTRL_SWRST(HIGH);
+    while (GCLK_REGS->GCLK_STATUS & GCLK_STATUS_SYNCBUSY_Msk);
+
     // set no prescaler value on clk gen 0
     GCLK_REGS->GCLK_GENDIV = GCLK_GENDIV_ID(0x0) |
                              GCLK_GENDIV_DIV(0);
 
     // enable GCLK_GEN0 with DFLL48M as source and no divider
     GCLK_REGS->GCLK_GENCTRL = GCLK_GENCTRL_ID(0x0) |
+                              GCLK_GENCTRL_OE(GCLK_DEBUG) |
                               GCLK_GENCTRL_SRC_DFLL48M |
                               GCLK_GENCTRL_GENEN(HIGH) |
                               GCLK_GENCTRL_DIVSEL(LOW);
 
-    while (GCLK_REGS->GCLK_STATUS & GCLK_STATUS_SYNCBUSY(HIGH));
+    while (GCLK_REGS->GCLK_STATUS & GCLK_STATUS_SYNCBUSY_Msk);
 
     // route DFLL48M to USB module
+    // GCLK_REGS->GCLK_CLKCTRL &= ~GCLK_CLKCTRL_GEN_Msk;
     GCLK_REGS->GCLK_CLKCTRL = GCLK_CLKCTRL_GEN(0x0) |
                               GCLK_CLKCTRL_ID_USB |
                               GCLK_CLKCTRL_CLKEN(HIGH);
     while (GCLK_REGS->GCLK_STATUS & GCLK_STATUS_SYNCBUSY_Msk);
+}
+
+// Disable OSCM8M -----------------------------------------------------------------------
+__STATIC_INLINE void SetupOSC8M()
+{
+    SYSCTRL_REGS->SYSCTRL_OSC8M &= ~SYSCTRL_OSC8M_ENABLE_Msk;
 }
 
 void SystemInit(void)
@@ -146,6 +169,7 @@ void SystemInit(void)
     SetupGCLKGEN1();           // routes XOSC32K to DFLL48M
     SetupDFLL();               // sets DFLL48M to 48MHz using XOSC32K
     SetupGCLKGEN0();           // uses DFLL48M as the CPU clock
+    SetupOSC8M();              // save energy by disabling unused clocks
 
     SystemCoreClockUpdate();
     return;
@@ -154,5 +178,6 @@ void SystemInit(void)
 void SystemCoreClockUpdate(void)
 {
     SystemCoreClock = 48000000;
+    // SystemCoreClock = __SYSTEM_CLOCK;
     return;
 }

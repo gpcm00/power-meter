@@ -1,7 +1,5 @@
 #ifndef USING_SAMD21E17A_MCU
 #define USING_SAMD21E17A_MCU
-#include "component/port.h"
-#include "samd21e17a.h"
 #endif
 
 #include <power_logger.h>

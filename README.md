@@ -1,6 +1,6 @@
 ### PROJECT UNDER DEVELOPMENT
 
-Check the ![schematic](https://github.com/gpcm00/power-meter/blob/main/Documentation/Schematic.pdf) in the documetation folder to check how power is measured and logged.
+Check the [schematic](https://github.com/gpcm00/power-meter/blob/main/Documentation/Schematic.pdf) in the documetation folder to check how power is measured and logged.
 
 The PCB was developed in KiCAD. You can get them in the PCB-Files folder,
 

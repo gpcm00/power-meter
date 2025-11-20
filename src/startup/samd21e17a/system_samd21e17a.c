@@ -175,6 +175,5 @@ void SystemInit(void)
 void SystemCoreClockUpdate(void)
 {
     SystemCoreClock = 48000000;
-    // SystemCoreClock = __SYSTEM_CLOCK;
     return;
 }

@@ -12,4 +12,6 @@
 #define BIT(n)          (1<<(n))
 #define N_BIT_MASK(n)   (BIT(n)-1)
 
+enum LOGIC_LEVEL { LOGIC_LOW, LOGIC_HIGH };
+
 #endif

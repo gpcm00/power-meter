@@ -17,8 +17,6 @@ extern "C" {
 
 typedef void(*VECTOR_TABLE_Type)(void);
 
-void SystemInitGPIO();
-
 __NO_RETURN void main (void);
 
 #ifdef __cplusplus

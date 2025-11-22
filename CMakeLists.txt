@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 project(Power-Logger C ASM)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_definitions(DEBUG_MODE)
+endif()
+
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR cortex-m0plus)
 
@@ -54,6 +58,7 @@ if(USING_SAMD21E17A)
 
     file(GLOB SAMD21E17A_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/samd21e17a/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/interrupts/samd21e17a/*.c"
     )
 
     list(APPEND SRC ${SAMD21E17A_SOURCES} ${SAMD21E17A_STARTUP})
@@ -67,8 +72,10 @@ endif()
 
 add_custom_command(
     TARGET ${PROJECT_NAME}.elf POST_BUILD
-    COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_NAME}.hex
-    COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_NAME}.bin
+    COMMAND ${CMAKE_OBJCOPY}
+        -O ihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_NAME}.hex
+    COMMAND ${CMAKE_OBJCOPY}
+        -O binary $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_NAME}.bin
 )
 
 # J-Link

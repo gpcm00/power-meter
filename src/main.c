@@ -26,6 +26,18 @@ void main (void)
     porta->PORT_PMUX[LED_G>>1] = PORT_PMUX_PMUXO_H;
     porta->PORT_PMUX[LED_R>>1] = PORT_PMUX_PMUXO_H;
 
+    spi_config config = {
+        .CSEN = LOGIC_HIGH,
+        .DOPO = 3,
+        .DIPO = 0,
+        .TXEN = LOGIC_HIGH,
+        .RXEN = LOGIC_LOW,
+        .altpin = LOGIC_HIGH,
+        .dma = LOGIC_HIGH,
+    };
+
+    spi_init(0, 0, 4, SPI_MASTER, &config);
+
     while (true) {
         wait_cycles(10);
         porta->PORT_OUTTGL = TST_BLINKER_BIT;

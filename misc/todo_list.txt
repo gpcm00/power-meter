@@ -1,0 +1,3 @@
+TODO: implement interrupt to handle transactions automatically [../src/drivers/samd21e17a/spi.c]
+TODO: add DMA [../src/drivers/samd21e17a/spi.c]
+TODO: add exception handlers [../src/interrupts/samd21e17a/interrupt.c]

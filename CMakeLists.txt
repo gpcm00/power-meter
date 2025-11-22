@@ -53,12 +53,12 @@ if(USING_SAMD21E17A)
     message(STATUS "Including SAMD21E17A sources")
 
     file(GLOB SAMD21E17A_STARTUP
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/startup/samd21e17a/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/startup/samd21e/*.c"
     )
 
     file(GLOB SAMD21E17A_SOURCES
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/samd21e17a/*.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/interrupts/samd21e17a/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/samd21e/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/interrupts/samd21e/*.c"
     )
 
     list(APPEND SRC ${SAMD21E17A_SOURCES} ${SAMD21E17A_STARTUP})

@@ -10,5 +10,5 @@
 #include <drivers/gpio.h>
 
 
-volatile gpio* const  porta = &PORT_IOBUS_REGS->GROUP[0];
-volatile gpio* const  portb = &PORT_IOBUS_REGS->GROUP[1];
+gpio* const  PortA = &PORT_REGS->GROUP[0];
+gpio* const  PortIOA = &PORT_IOBUS_REGS->GROUP[0];

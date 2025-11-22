@@ -1,4 +1,4 @@
-#include <drivers/samd21e17a/gclk.h>
+#include <drivers/samd21e/gclk.h>
 
 static uint32_t next_gclkMUX = 0x2;
 

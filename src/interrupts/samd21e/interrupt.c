@@ -1,4 +1,5 @@
-#include <interrupts/samd21e17a/interrupts.h>
+#include <interrupts/samd21e/interrupts.h>
+#include <common.h>
 
 #define ISR_HANDLER(name)                           \
     void name(void)                                 \
@@ -9,9 +10,23 @@
             while(1);                               \
     }
 
+#define ENUM_ISR_HANDLER(name, n)                   \
+    void name(void)                                 \
+    {                                               \
+        if (peripheral_isr_handlers.name)           \
+            peripheral_isr_handlers.name(n);        \
+        else                                        \
+            while(1);                               \
+    }
+
 #define PUSH_ISR(name)                              \
     void push_##name(void (*isr_handler)(void)) {   \
         peripheral_isr_handlers.name = isr_handler; \
+    }
+
+#define ENUM_PUSH_ISR(name)                          \
+    void push_##name(void (*isr_handler)(uint8_t)) { \
+        peripheral_isr_handlers.name = isr_handler;  \
     }
 
 /* Peripherals handlers */
@@ -25,18 +40,18 @@ struct Peripheral_Interrupt_Handler_Table {
     void (*DMAC_Handler)(void);
     void (*USB_Handler)(void);
     void (*EVSYS_Handler)(void);
-    void (*SERCOM0_Handler)(void);
-    void (*SERCOM1_Handler)(void);
-    void (*SERCOM2_Handler)(void);
-    void (*SERCOM3_Handler)(void);
+    void (*SERCOM0_Handler)(uint8_t n);
+    void (*SERCOM1_Handler)(uint8_t n);
+    void (*SERCOM2_Handler)(uint8_t n);
+    void (*SERCOM3_Handler)(uint8_t n);
     void (*Reserved13)(void);
     void (*Reserved14)(void);
-    void (*TCC0_Handler)(void);
-    void (*TCC1_Handler)(void);
-    void (*TCC2_Handler)(void);
-    void (*TC3_Handler)(void);
-    void (*TC4_Handler)(void);
-    void (*TC5_Handler)(void);
+    void (*TCC0_Handler)(uint8_t n);
+    void (*TCC1_Handler)(uint8_t n);
+    void (*TCC2_Handler)(uint8_t n);
+    void (*TC3_Handler)(uint8_t n);
+    void (*TC4_Handler)(uint8_t n);
+    void (*TC5_Handler)(uint8_t n);
     void (*Reserved21)(void);
     void (*Reserved22)(void);
     void (*ADC_Handler)(void);
@@ -55,18 +70,18 @@ PUSH_ISR(NVMCTRL_Handler);
 PUSH_ISR(DMAC_Handler);
 PUSH_ISR(USB_Handler);
 PUSH_ISR(EVSYS_Handler);
-PUSH_ISR(SERCOM0_Handler);
-PUSH_ISR(SERCOM1_Handler);
-PUSH_ISR(SERCOM2_Handler);
-PUSH_ISR(SERCOM3_Handler);
+ENUM_PUSH_ISR(SERCOM0_Handler);
+ENUM_PUSH_ISR(SERCOM1_Handler);
+ENUM_PUSH_ISR(SERCOM2_Handler);
+ENUM_PUSH_ISR(SERCOM3_Handler);
 PUSH_ISR(Reserved13);
 PUSH_ISR(Reserved14);
-PUSH_ISR(TCC0_Handler);
-PUSH_ISR(TCC1_Handler);
-PUSH_ISR(TCC2_Handler);
-PUSH_ISR(TC3_Handler);
-PUSH_ISR(TC4_Handler);
-PUSH_ISR(TC5_Handler);
+ENUM_PUSH_ISR(TCC0_Handler);
+ENUM_PUSH_ISR(TCC1_Handler);
+ENUM_PUSH_ISR(TCC2_Handler);
+ENUM_PUSH_ISR(TC3_Handler);
+ENUM_PUSH_ISR(TC4_Handler);
+ENUM_PUSH_ISR(TC5_Handler);
 PUSH_ISR(Reserved21);
 PUSH_ISR(Reserved22);
 PUSH_ISR(ADC_Handler);
@@ -84,18 +99,18 @@ ISR_HANDLER(NVMCTRL_Handler);
 ISR_HANDLER(DMAC_Handler);
 ISR_HANDLER(USB_Handler);
 ISR_HANDLER(EVSYS_Handler);
-ISR_HANDLER(SERCOM0_Handler);
-ISR_HANDLER(SERCOM1_Handler);
-ISR_HANDLER(SERCOM2_Handler);
-ISR_HANDLER(SERCOM3_Handler);
+ENUM_ISR_HANDLER(SERCOM0_Handler, 0);
+ENUM_ISR_HANDLER(SERCOM1_Handler, 1);
+ENUM_ISR_HANDLER(SERCOM2_Handler, 2);
+ENUM_ISR_HANDLER(SERCOM3_Handler, 3);
 ISR_HANDLER(Reserved13);
 ISR_HANDLER(Reserved14);
-ISR_HANDLER(TCC0_Handler);
-ISR_HANDLER(TCC1_Handler);
-ISR_HANDLER(TCC2_Handler);
-ISR_HANDLER(TC3_Handler);
-ISR_HANDLER(TC4_Handler);
-ISR_HANDLER(TC5_Handler);
+ENUM_ISR_HANDLER(TCC0_Handler, 0);
+ENUM_ISR_HANDLER(TCC1_Handler, 1);
+ENUM_ISR_HANDLER(TCC2_Handler, 2);
+ENUM_ISR_HANDLER(TC3_Handler, 3);
+ENUM_ISR_HANDLER(TC4_Handler, 4);
+ENUM_ISR_HANDLER(TC5_Handler, 5);
 ISR_HANDLER(Reserved21);
 ISR_HANDLER(Reserved22);
 ISR_HANDLER(ADC_Handler);

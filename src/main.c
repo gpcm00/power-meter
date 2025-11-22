@@ -18,13 +18,13 @@
 
 void main (void)
 {
-    porta->PORT_DIRSET = TST_BLINKER_BIT;
-    porta->PORT_OUTCLR = TST_BLINKER_BIT;
+    PortA->PORT_DIRSET = TST_BLINKER_BIT;
+    PortA->PORT_OUTCLR = TST_BLINKER_BIT;
 
-    porta->PORT_PINCFG[LED_G] |= PORT_PINCFG_PMUXEN(LOGIC_HIGH);
-    porta->PORT_PINCFG[LED_R] |= PORT_PINCFG_PMUXEN(LOGIC_HIGH);
-    porta->PORT_PMUX[LED_G>>1] = PORT_PMUX_PMUXO_H;
-    porta->PORT_PMUX[LED_R>>1] = PORT_PMUX_PMUXO_H;
+    PortA->PORT_PINCFG[LED_G] |= PORT_PINCFG_PMUXEN(LOGIC_HIGH);
+    PortA->PORT_PINCFG[LED_R] |= PORT_PINCFG_PMUXEN(LOGIC_HIGH);
+    PortA->PORT_PMUX[LED_G>>1] = PORT_PMUX_PMUXO_H;
+    PortA->PORT_PMUX[LED_R>>1] = PORT_PMUX_PMUXO_H;
 
     spi_config config = {
         .CSEN = LOGIC_HIGH,
@@ -36,10 +36,12 @@ void main (void)
         .dma = LOGIC_HIGH,
     };
 
-    spi_init(0, 0, 4, SPI_MASTER, &config);
+    char hello_world[] = "Hello SPI bus!";
 
-    while (true) {
-        wait_cycles(10);
-        porta->PORT_OUTTGL = TST_BLINKER_BIT;
+    spi_init(0, 0, 4, SPI_MASTER, &config);
+    spi_write(0, (uint8_t*)hello_world, sizeof(hello_world));
+    while (1) {
+        // wait_cycles(10);
+        // PortA->PORT_OUTTGL = TST_BLINKER_BIT;
     }
 }

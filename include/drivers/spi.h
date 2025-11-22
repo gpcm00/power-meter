@@ -5,25 +5,16 @@
 #include <common.h>
 
 #ifdef USING_SAMD21E17A_MCU
-typedef sercom_spim_registers_t spi;
-
-typedef struct spi_config {
-    uint8_t altpin;
-    uint8_t dma;
-
-    // register specific
-    uint8_t RXEN;
-    uint8_t TXEN;
-    uint8_t CSEN;
-    uint8_t DOPO;
-    uint8_t DIPO;
-} spi_config;
-
+#include <drivers/samd21e/sercom_spi.h>
 #else
 #error "Unknown architecture"
 #endif
 
 enum SPI_TYPE {SPI_SLAVE, SPI_MASTER};
+
 int spi_init(uint8_t bus, uint8_t mode, uint32_t div, enum SPI_TYPE type, void* extra);
+int spi_write(uint8_t bus, uint8_t* buffer, uint32_t len);
+int spi_read(uint8_t bus, uint8_t* buffer, uint32_t len);
+int spi_xfer(uint8_t bus, uint8_t* tx_buffer, uint8_t* rx_buffer, uint32_t len);
 
 #endif

@@ -88,9 +88,9 @@ __STATIC_INLINE void configSPIRegisters(spi* spi_bus, enum SPI_TYPE type,
 __STATIC_INLINE void enableSPIInterrupt(spi* spi_bus, spi_config* config)
 {
     spi_bus->SERCOM_INTENSET = ( (config->RXEN) ?
-                                    SERCOM_SPIM_INTENSET_RXC_Msk : 0 ) |
+                                    SERCOM_SPIM_INTENSET_RXC(LOGIC_HIGH) : 0 ) |
                                ( (config->TXEN) ?
-                                    SERCOM_SPIM_INTENSET_DRE_Msk : 0 ) |
+                                    SERCOM_SPIM_INTENSET_DRE(LOGIC_HIGH) : 0 ) |
                                 SERCOM_SPIM_INTENSET_ERROR_Msk;
 }
 

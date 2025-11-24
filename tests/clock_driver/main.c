@@ -26,24 +26,8 @@ void main (void)
     PortA->PORT_PMUX[LED_G>>1] = PORT_PMUX_PMUXO_H;
     PortA->PORT_PMUX[LED_R>>1] = PORT_PMUX_PMUXO_H;
 
-    spi_config config = {
-        .CSEN = LOGIC_HIGH,
-        .DOPO = 2,
-        .DIPO = 0,
-        .TXEN = LOGIC_HIGH,
-        .RXEN = LOGIC_LOW,
-        .altpin = LOGIC_HIGH,
-        .dma = LOGIC_HIGH,
-    };
-
-    char hello_world[] = "Hello SPI bus!";
-
-    spi_init(2, 0, 4, SPI_MASTER, &config);
-    __enable_irq();
-    __NVIC_EnableIRQ(SERCOM2_IRQn);
-    spi_write(2, (uint8_t*)hello_world, sizeof(hello_world));
     while (1) {
-        // wait_cycles(10);
-        // PortA->PORT_OUTTGL = TST_BLINKER_BIT;
+        wait_cycles(10);
+        PortA->PORT_OUTTGL = TST_BLINKER_BIT;
     }
 }

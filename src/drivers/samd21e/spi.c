@@ -44,12 +44,7 @@ static struct xfer_buffer {
     uint8_t* rxData;
     uint32_t len;
     uint32_t next;
-}  spi_buffer[] = {
-        {0,0,0},        // sercom0
-        {0,0,0},        // sercom1
-        {0,0,0},        // sercom2
-        {0,0,0},        // sercom3
-};
+}  spi_buffer[NUM_OF_SERCOM];
 
 /* low level register access are inlined */
 // SPI init helper functions ------------------------------------------------------------
@@ -62,7 +57,7 @@ __STATIC_INLINE void enableAPBCMsk(uint8_t bus)
 __STATIC_INLINE void resetSPIRegisters(spi* spi_bus)
 {
     spi_bus->SERCOM_CTRLA |= SERCOM_SPIM_CTRLA_SWRST(LOGIC_HIGH);
-    while (!(spi_bus->SERCOM_SYNCBUSY & SERCOM_SPIM_SYNCBUSY_SWRST_Msk));
+    while (spi_bus->SERCOM_SYNCBUSY & SERCOM_SPIM_SYNCBUSY_SWRST_Msk);
 }
 
 __STATIC_INLINE void configSPIRegisters(spi* spi_bus, enum SPI_TYPE type,
@@ -97,13 +92,13 @@ __STATIC_INLINE void enableSPIInterrupt(spi* spi_bus, spi_config* config)
 __STATIC_INLINE void enableSPIReceiver(spi* spi_bus)
 {
     spi_bus->SERCOM_CTRLB |= SERCOM_SPIM_CTRLB_RXEN(LOGIC_HIGH);
-    while (!(spi_bus->SERCOM_SYNCBUSY & SERCOM_SPIM_SYNCBUSY_CTRLB_Msk));
+    while (spi_bus->SERCOM_SYNCBUSY & SERCOM_SPIM_SYNCBUSY_CTRLB_Msk);
 }
 
 __STATIC_INLINE void enableSPIBus(spi* spi_bus)
 {
     spi_bus->SERCOM_CTRLA |= SERCOM_SPIM_CTRLA_ENABLE(LOGIC_HIGH);
-    while (!(spi_bus->SERCOM_SYNCBUSY & SERCOM_SPIM_SYNCBUSY_ENABLE_Msk));
+    while (spi_bus->SERCOM_SYNCBUSY & SERCOM_SPIM_SYNCBUSY_ENABLE_Msk);
 }
 
 __STATIC_INLINE void enableDebugCtrl(spi* spi_bus)
@@ -402,7 +397,9 @@ static void spi_isr_handler(uint8_t bus)
 
     if (spi_buffer[bus].len <= 0) {
         // TODO: add xfer done
+        spi_bus->SERCOM_INTENCLR = SERCOM_SPIM_INTENCLR_DRE(LOGIC_HIGH);
         spi_buffer[bus].next = 0;               // avoid buffer overflow
         PortIOA->PORT_OUTTGL = BIT(22);         // dummy toggle for testing
+        // return;
     }
 }

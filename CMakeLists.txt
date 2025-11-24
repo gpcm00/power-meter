@@ -52,6 +52,8 @@ option(USING_SAMD21E17A "Compile driver for SAMD21E17A" ON)
 if(USING_SAMD21E17A)
     message(STATUS "Including SAMD21E17A sources")
 
+    add_compile_definitions(USING_SAMD21E17A_MCU)
+
     file(GLOB SAMD21E17A_STARTUP
         "${CMAKE_CURRENT_SOURCE_DIR}/src/startup/samd21e/*.c"
     )
@@ -66,9 +68,9 @@ endif()
 
 add_executable(${PROJECT_NAME}.elf ${SRC})
 
-if(USING_SAMD21E17A)
-    target_compile_definitions(${PROJECT_NAME}.elf PRIVATE USING_SAMD21E17A_MCU)
-endif()
+# if(USING_SAMD21E17A)
+#     # target_compile_definitions(${PROJECT_NAME}.elf PRIVATE USING_SAMD21E17A_MCU)
+# endif()
 
 add_custom_command(
     TARGET ${PROJECT_NAME}.elf POST_BUILD
@@ -87,3 +89,5 @@ add_custom_target(flash
         -CommandFile ${CMAKE_SOURCE_DIR}/flash.jlink
     DEPENDS ${PROJECT_NAME}.elf
 )
+
+add_subdirectory(tests)

@@ -39,7 +39,7 @@ static const uint8_t dopo_table[][3] = {
     {   0,   3,  1},      // DOPO 3
 };
 
-static struct xfer_buffer {
+static volatile struct xfer_buffer {
     uint8_t* txData;
     uint8_t* rxData;
     uint32_t len;
@@ -82,11 +82,22 @@ __STATIC_INLINE void configSPIRegisters(spi* spi_bus, enum SPI_TYPE type,
 
 __STATIC_INLINE void enableSPIInterrupt(spi* spi_bus, spi_config* config)
 {
-    spi_bus->SERCOM_INTENSET = ( (config->RXEN) ?
-                                    SERCOM_SPIM_INTENSET_RXC(LOGIC_HIGH) : 0 ) |
-                               ( (config->TXEN) ?
-                                    SERCOM_SPIM_INTENSET_DRE(LOGIC_HIGH) : 0 ) |
-                                SERCOM_SPIM_INTENSET_ERROR_Msk;
+    spi_bus->SERCOM_INTENSET = SERCOM_SPIM_INTENSET_ERROR(LOGIC_HIGH);
+                               //  ( (config->RXEN) ?
+                               //      SERCOM_SPIM_INTENSET_RXC(LOGIC_HIGH) : 0 ) |
+                               // ( (config->TXEN) ?
+                               //      SERCOM_SPIM_INTENSET_DRE(LOGIC_HIGH) : 0 ) |
+                               //  SERCOM_SPIM_INTENSET_ERROR_Msk;
+}
+
+__STATIC_INLINE void setSPIInterrupt(spi* spi_bus, uint8_t int_flag)
+{
+    spi_bus->SERCOM_INTENSET = int_flag;
+}
+
+__STATIC_INLINE void clearSPIInterrupt(spi* spi_bus, uint8_t int_flag)
+{
+    spi_bus->SERCOM_INTENCLR = int_flag;
 }
 
 __STATIC_INLINE void enableSPIReceiver(spi* spi_bus)
@@ -270,9 +281,12 @@ int spi_write(uint8_t bus, uint8_t* buffer, uint32_t len)
     spi_buffer[bus].next = 0;
 
     if (writeData(bus, spi_bus)) {
+        // if (spi_buffer[bus].len == 0) while(1);
         spi_buffer[bus].len--;
         spi_buffer[bus].next++;
     }
+
+    setSPIInterrupt(spi_bus, SERCOM_SPIM_INTFLAG_DRE_Msk);
 
     return 0;
 }
@@ -397,7 +411,7 @@ static void spi_isr_handler(uint8_t bus)
 
     if (spi_buffer[bus].len <= 0) {
         // TODO: add xfer done
-        spi_bus->SERCOM_INTENCLR = SERCOM_SPIM_INTENCLR_DRE(LOGIC_HIGH);
+        clearSPIInterrupt(spi_bus, SERCOM_SPIM_INTENCLR_DRE(LOGIC_HIGH));
         spi_buffer[bus].next = 0;               // avoid buffer overflow
         PortIOA->PORT_OUTTGL = BIT(22);         // dummy toggle for testing
         // return;

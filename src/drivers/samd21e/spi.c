@@ -221,6 +221,7 @@ static void pushISRHandler(uint8_t bus, void (*isr_handler)(uint8_t));
 static int checkPinConfig(spi_config* config);
 static void initGPIO(uint8_t bus, enum SPI_TYPE type, spi_config* config);
 
+static void spitx_isr_handler(uint8_t bus);
 static void spi_isr_handler(uint8_t bus);
 
 int spi_init(uint8_t bus, uint8_t mode, uint32_t div, enum SPI_TYPE type, void* extra)
@@ -250,7 +251,8 @@ int spi_init(uint8_t bus, uint8_t mode, uint32_t div, enum SPI_TYPE type, void* 
 #endif
 
     // transfer to xfer buffers are handled inside isr
-    pushISRHandler(bus, &spi_isr_handler);
+    void (*isr_handler)(uint8_t) = (!config->RXEN)? &spitx_isr_handler : &spi_isr_handler;
+    pushISRHandler(bus, isr_handler);
     enableSPIInterrupt(spi_bus, config);
 
     // if spi receive data
@@ -265,6 +267,8 @@ int spi_init(uint8_t bus, uint8_t mode, uint32_t div, enum SPI_TYPE type, void* 
 
     // config ports to operate in SPI mode
     initGPIO(bus, type, config);
+
+    __NVIC_EnableIRQ(SERCOM0_IRQn + bus);   // sercom0 is always the base
     return 0;
 }
 
@@ -286,7 +290,7 @@ int spi_write(uint8_t bus, uint8_t* buffer, uint32_t len)
         spi_buffer[bus].next++;
     }
 
-    setSPIInterrupt(spi_bus, SERCOM_SPIM_INTFLAG_DRE_Msk);
+    setSPIInterrupt(spi_bus, SERCOM_SPIM_INTFLAG_DRE(LOGIC_HIGH));
 
     return 0;
 }
@@ -394,8 +398,7 @@ static void initGPIO(uint8_t bus, enum SPI_TYPE type, spi_config* config)
     setChipSelect(port_table[pt_offs][cs], config, pmuxo, pmuxe, type);
 }
 
-
-static void spi_isr_handler(uint8_t bus)
+static void spitx_isr_handler(uint8_t bus)
 {
     spi* spi_bus = SERCOM(bus);
 
@@ -404,7 +407,7 @@ static void spi_isr_handler(uint8_t bus)
         while (1);
     }
 
-    if (writeData(bus, spi_bus) || readData(bus, spi_bus)) {
+    if (writeData(bus, spi_bus)) {
         spi_buffer[bus].len--;
         spi_buffer[bus].next++;
     }
@@ -415,5 +418,29 @@ static void spi_isr_handler(uint8_t bus)
         spi_buffer[bus].next = 0;               // avoid buffer overflow
         PortIOA->PORT_OUTTGL = BIT(22);         // dummy toggle for testing
         // return;
+    }
+}
+
+
+static void spi_isr_handler(uint8_t bus)
+{
+    spi* spi_bus = SERCOM(bus);
+
+    // TODO: handle error
+    if (errorFlag(spi_bus)) {
+        while (1);
+    }
+
+    if (readData(bus, spi_bus)) {
+        writeData(bus, spi_bus);
+        spi_buffer[bus].len--;
+        spi_buffer[bus].next++;
+    }
+
+    if (spi_buffer[bus].len <= 0) {
+        // TODO: add xfer done
+        clearSPIInterrupt(spi_bus, SERCOM_SPIM_INTENCLR_RXC(LOGIC_HIGH));
+        spi_buffer[bus].next = 0;               // avoid buffer overflow
+        PortIOA->PORT_OUTTGL = BIT(22);         // dummy toggle for testing
     }
 }

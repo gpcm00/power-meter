@@ -12,6 +12,17 @@
 // there is no need to define AT_PB because samd21e17a doesn't have port b
 #define NA              ((int8_t)(-1))
 
+#define RXC_FLAG        SERCOM_SPIM_INTENCLR_RXC_Msk
+#define TXC_FLAG        SERCOM_SPIM_INTENCLR_TXC_Msk
+#define DRE_FLAG        SERCOM_SPIM_INTENCLR_DRE_Msk
+#define ERR_FLAG        SERCOM_SPIM_INTENCLR_ERROR_Msk
+
+#define PMUXE           PORT_PMUX_PMUXE_C
+#define PMUXO           PORT_PMUX_PMUXO_C
+
+#define ALT_PMUXE       PORT_PMUX_PMUXE_D
+#define ALT_PMUXO       PORT_PMUX_PMUXO_D
+
 #define NUM_OF_SERCOM   4
 
 static const int8_t port_table[][NUM_OF_SERCOM] = {
@@ -176,6 +187,7 @@ __STATIC_INLINE void setDataIn(uint32_t port, spi_config* config,
         }
     }
 }
+
 __STATIC_INLINE void setClock(uint32_t port, enum SPI_TYPE type,
                                                 uint8_t pmuxo, uint8_t pmuxe)
 {
@@ -251,7 +263,8 @@ int spi_init(uint8_t bus, uint8_t mode, uint32_t div, enum SPI_TYPE type, void* 
 #endif
 
     // transfer to xfer buffers are handled inside isr
-    void (*isr_handler)(uint8_t) = (!config->RXEN)? &spitx_isr_handler : &spi_isr_handler;
+    void (*isr_handler)(uint8_t) =
+                (!config->RXEN)? &spitx_isr_handler : &spi_isr_handler;
     pushISRHandler(bus, isr_handler);
     enableSPIInterrupt(spi_bus, config);
 
@@ -285,12 +298,11 @@ int spi_write(uint8_t bus, uint8_t* buffer, uint32_t len)
     spi_buffer[bus].next = 0;
 
     if (writeData(bus, spi_bus)) {
-        // if (spi_buffer[bus].len == 0) while(1);
         spi_buffer[bus].len--;
         spi_buffer[bus].next++;
     }
 
-    setSPIInterrupt(spi_bus, SERCOM_SPIM_INTFLAG_DRE(LOGIC_HIGH));
+    setSPIInterrupt(spi_bus, DRE_FLAG);
 
     return 0;
 }
@@ -322,14 +334,12 @@ int spi_xfer(uint8_t bus, uint8_t* tx_buffer, uint8_t* rx_buffer, uint32_t len)
     spi_buffer[bus].len = len;
     spi_buffer[bus].next = 0;
 
-    if (writeData(bus, spi_bus)) {
-        spi_buffer[bus].len--;
-        spi_buffer[bus].next++;
-    }
+    writeData(bus, spi_bus);
 
     return 0;
 }
 
+// Helper functions ---------------------------------------------------------------------
 static void pushISRHandler(uint8_t bus, void (*isr_handler)(uint8_t))
 {
 #define CASE_SERCOM_ISR(n)                          \
@@ -377,13 +387,13 @@ static int checkPinConfig(spi_config* config)
 static void initGPIO(uint8_t bus, enum SPI_TYPE type, spi_config* config)
 {
     int pt_offs = (int)bus;
-    uint8_t pmuxo = PORT_PMUX_PMUXO_C;
-    uint8_t pmuxe = PORT_PMUX_PMUXE_C;
+    uint8_t pmuxo = PMUXO;
+    uint8_t pmuxe = PMUXE;
     uint8_t dopo = config->DOPO;
     if (config->altpin) {
         pt_offs += NUM_OF_SERCOM;   // second half od the port_table
-        pmuxo = PORT_PMUX_PMUXO_D;
-        pmuxe = PORT_PMUX_PMUXE_D;
+        pmuxo = ALT_PMUXO;
+        pmuxe = ALT_PMUXE;
     }
 
     // get SERCOMn[x] for each function
@@ -414,7 +424,7 @@ static void spitx_isr_handler(uint8_t bus)
 
     if (spi_buffer[bus].len <= 0) {
         // TODO: add xfer done
-        clearSPIInterrupt(spi_bus, SERCOM_SPIM_INTENCLR_DRE(LOGIC_HIGH));
+        clearSPIInterrupt(spi_bus, DRE_FLAG);
         spi_buffer[bus].next = 0;               // avoid buffer overflow
         PortIOA->PORT_OUTTGL = BIT(22);         // dummy toggle for testing
         // return;
@@ -439,7 +449,7 @@ static void spi_isr_handler(uint8_t bus)
 
     if (spi_buffer[bus].len <= 0) {
         // TODO: add xfer done
-        clearSPIInterrupt(spi_bus, SERCOM_SPIM_INTENCLR_RXC(LOGIC_HIGH));
+        clearSPIInterrupt(spi_bus, RXC_FLAG);
         spi_buffer[bus].next = 0;               // avoid buffer overflow
         PortIOA->PORT_OUTTGL = BIT(22);         // dummy toggle for testing
     }

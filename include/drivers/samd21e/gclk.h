@@ -6,5 +6,6 @@
 #include <system_samd21e17a.h>
 
 int setupClk(uint16_t id, uint32_t div, enum LOGIC_LEVEL divsel);
+int resetClk(int clk);
 
 #endif
